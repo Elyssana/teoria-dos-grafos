@@ -8,7 +8,7 @@ typedef int bool;
 
 typedef struct adjacencia
 {
-    int vert;                //?vertice onde a aresta chega
+    int vert;                //vertice onde a aresta chega
     int peso;                //peso da aresta
     struct adjacencia *prox; //proximo na lista de adj.
 } adjacencia;
@@ -194,8 +194,7 @@ int main()
     int s = 0;
     int n, m;
 
-    /* int i = !NULL;
-    printf("%d ", i); */
+    
     /*
     grafo *g = criaGrafo(5);
 
