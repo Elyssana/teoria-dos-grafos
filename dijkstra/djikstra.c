@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+//#include <string.h>
 #include <limits.h>
 #define true 1
 #define false 0
@@ -123,10 +123,9 @@ int menorDist(grafo *g, int aberto[], int dist[])
     }
 
     int menor = i;
-    //printf("menor=%d\n", menor);
+
     for (i = menor + 1; i < g->n; i++)
     {
-        //printf("i=%d\n", i);
 
         if (aberto[i] == true && dist[i] < dist[menor])
         {
@@ -161,12 +160,9 @@ int *dijkstra(grafo *g, int s)
 
         while (ad != NULL)
         {
-            //printf("chegou aqui\n");
-            //printf("vertice: %d\n", ad->vert);
 
             int v = ad->vert;
 
-            //relaxa(g,d,p,u,ad->n);
             while (ad != NULL && ad->vert != v)
             {
                 ad = ad->prox;
@@ -181,8 +177,6 @@ int *dijkstra(grafo *g, int s)
                 }
             }
 
-            //relaxamento da aresta;
-
             ad = ad->prox;
         }
     }
@@ -191,10 +185,6 @@ int *dijkstra(grafo *g, int s)
 
 int main()
 {
-    int s = 0;
-    int n, m;
-
-    
     /*
     grafo *g = criaGrafo(5);
 
@@ -204,30 +194,32 @@ int main()
     criaArestas(g, 2, 4, 40);
     criaArestas(g, 3, 1, 3);
     criaArestas(g, 4, 3, 8);*/
+
+    FILE *in = fopen("input.in", "r");
+    if (!in)
+    {
+        printf("Erro ao abrir o arquivo!\n");
+        exit(-1);
+    }
+
+    int n, m, s, u, v, p;
+
     printf("************ \n Observação: A numeração dos vértices inicía-se em 0.\n************\n\n");
 
-    printf("Insira o numero de vértices\n>");
-    scanf("%d", &n); //nº de vertices
-    printf("Insira o numero de arestas\n>");
-    scanf("%d", &m); //vértice inicial*/
-    printf("Insira o vertice de partida\n>");
-    scanf("%d", &s); //nº de Arestas
-    /*printf("Insira o vértice inicial\n>");
-    scanf("%d", &s); //vértice inicial*/
+    fscanf(in, "%d %d %d", &n, &m, &s);
+
+    printf("numero de vértices > %d \n", n);
+
+    printf("numero de arestas > %d \n", m);
+
+    printf("vertice de partida > %d \n", s);
 
     grafo *g = criaGrafo(n);
 
-    printf("Insira a lista de arestas\n");
     for (int i = 0; i < m; i++)
     {
-        int u, v, p;
-        //printf("vértice\n>");
-        scanf("%d", &u);
-        //printf("vertive adjacente a %d\n>", u);
-        scanf("%d", &v);
-        //printf("peso da aresta\n>");
-        scanf("%d", &p);
-        //scanf("%d %d %d", &u, &v, &p);
+
+        fscanf(in, "%d %d %d", &u, &v, &p);
 
         criaArestas(g, u, v, p);
     }
