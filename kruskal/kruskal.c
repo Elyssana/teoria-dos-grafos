@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <limits.h>
 #define true 1
 #define false 0
 typedef int bool;
 
 typedef struct adjacencia
 {
-    int vert_orig;
-    int vert_dest;           //vertice destino
+    int vert_orig;           //vertice de origem
+    int vert_dest;           //vertice de destino
     int peso;                //peso da aresta
     struct adjacencia *prox; //proximo na lista de adj.
 } adjacencia;
@@ -362,7 +360,7 @@ int main()
     FILE *in = fopen("input.in", "r");
     if (!in)
     {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Erro ao abrir o arquivo!\n");
         exit(-1);
     }
 
