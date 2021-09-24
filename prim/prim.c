@@ -15,9 +15,12 @@ typedef struct adjacencia
 
 typedef struct vertice
 {
-    
-    int item;
-    adjacencia *cab;
+    int indice;
+    int indHeap;
+    int custo;
+    int prev;
+    bool visitado;
+    adjacencia *cab_lista;
 } vertice;
 
 typedef struct grafo
@@ -28,6 +31,171 @@ typedef struct grafo
 
 } grafo;
 
+typedef struct HEAP
+{
+    int size;
+    int max_size;
+    vertice **vert;
+
+} HEAP;
+/*************************************/
+
+int get_parent_index(int i)
+{
+    return (i / 2);
+}
+
+int get_cost(HEAP *h, int index)
+{
+    return ((vertice *)h->vert[index])->custo;
+}
+
+void swap_vertex(void **item_1, void **item_2)
+{
+    void *aux = *item_1;
+    *item_1 = *item_2;
+    *item_2 = aux;
+}
+
+void bubble_up(HEAP *heap, int i)
+{
+    if (i == 0)
+    {
+        return;
+    }
+
+    int parent_index = get_parent_index(i);
+    if (heap->vert[parent_index]->custo > heap->vert[i]->custo)
+    {
+        heap->vert[parent_index]->indHeap = i;
+        heap->vert[i]->indHeap = parent_index;
+        swap_vertex((void *)&heap->vert[parent_index], (void *)&heap->vert[i]);
+        bubble_up(heap, parent_index);
+    }
+}
+
+void enqueue(HEAP *heap, vertice *newVertex)
+{
+    //printf("i %d\n", newVertex->indice);
+
+    if (heap->size >= heap->max_size - 1)
+    {
+        printf("Heap overflow!\n");
+    }
+    else
+    {
+
+        heap->vert[++heap->size] = newVertex;
+        newVertex->indHeap = heap->size;
+
+        int key_index = heap->size;
+
+        int parent_index = get_parent_index(key_index);
+
+        while (parent_index >= 1 && get_cost(heap, key_index) < get_cost(heap, parent_index))
+        {
+            heap->vert[parent_index]->indHeap = key_index;
+            heap->vert[key_index]->indHeap = parent_index;
+            swap_vertex((void *)&heap->vert[parent_index], (void *)&heap->vert[key_index]);
+
+            key_index = parent_index;
+
+            parent_index = get_parent_index(key_index);
+        }
+    }
+}
+
+int get_left_index(int i)
+{
+    return (2 * i);
+}
+
+int get_right_index(int i)
+{
+    return (2 * i + 1);
+}
+
+void min_heapify(HEAP *heap, int i)
+{
+    int smallest;
+    int left_index = get_left_index(i);
+    int right_index = get_right_index(i);
+
+    vertice *t = heap->vert[i];
+    vertice *t_l = heap->vert[left_index];
+    vertice *t_r = heap->vert[right_index];
+
+    if (left_index <= heap->size && t_l->custo < t->custo)
+    {
+        smallest = left_index;
+    }
+    else
+    {
+        smallest = i;
+    }
+
+    vertice *t_s = heap->vert[smallest];
+
+    if (right_index <= heap->size && t_r->custo < t_s->custo)
+    {
+        smallest = right_index;
+        t_s = heap->vert[smallest];
+    }
+
+    if (t != t_s)
+    {
+        heap->vert[i]->indHeap = smallest;
+        heap->vert[smallest]->indHeap = i;
+        swap_vertex((void *)&heap->vert[i], (void *)&heap->vert[smallest]);
+        min_heapify(heap, smallest);
+    }
+}
+
+void *dequeue(HEAP *heap)
+{
+    if (!(heap->size))
+    {
+        printf("Heap underflow.\n");
+        return NULL;
+    }
+    else
+    {
+        vertice *item = (vertice *)heap->vert[1];
+
+        heap->vert[1] = heap->vert[heap->size];
+        heap->vert[1]->indHeap = 1;
+
+        heap->vert[heap->size] = NULL;
+
+        heap->size -= 1;
+
+        min_heapify(heap, 1);
+
+        return item;
+    }
+}
+
+HEAP *create_heap(int size, vertice *vertex_list)
+{
+    printf("VL %d \n", vertex_list[3].indice);
+    HEAP *heap = (HEAP *)malloc(sizeof(HEAP));
+
+    heap->vert = (vertice **)malloc((size + 1) * sizeof(vertice *));
+
+    heap->size = 0;
+    heap->max_size = size + 1;
+
+    for (int i = 0; i < size; ++i)
+    {
+        enqueue(heap, &vertex_list[i]);
+
+        //printf("voltoi %d\n", vertex_list[i].indice);
+    }
+
+    return heap;
+}
+/*************************************/
+
 void imprimeGrafo(grafo *g)
 {
     printf("vertices: %d. Arestas: %d.\n", g->n, g->m);
@@ -35,7 +203,7 @@ void imprimeGrafo(grafo *g)
     for (int i = 0; i < g->n; i++)
     {
         printf("v%d: ", i);
-        adjacencia *ad = g->adj[i].cab;
+        adjacencia *ad = g->adj[i].cab_lista;
         while (ad)
         {
             printf("v%d(%d) ", ad->vert_dest, ad->peso);
@@ -54,7 +222,11 @@ grafo *criaGrafo(int n)
     g->adj = (vertice *)malloc(n * sizeof(vertice));
     for (int i = 0; i < n; i++)
     {
-        g->adj[i].cab = NULL;
+        g->adj[i].indice = i;
+        g->adj[i].custo = INT_MAX;
+        g->adj[i].prev = -1;
+        g->adj[i].visitado = false;
+        g->adj[i].cab_lista = NULL;
     }
     return g;
 }
@@ -81,30 +253,83 @@ bool criaArestas(grafo *g, int u, int v, int peso)
     }
 
     adjacencia *novo = criAdj(u, v, peso);
-    novo->prox = g->adj[u].cab;
-    g->adj[u].cab = novo;
+    novo->prox = g->adj[u].cab_lista;
+    g->adj[u].cab_lista = novo;
 
     g->m++;
 
     return true;
 }
 
-/*************************************/
+/* adjacencia *insereNaLista(adjacencia *cabLista, adjacencia *no)
+{
+    no->prox = cabLista;
+    cabLista = no;
+    return cabLista; 
+}
+*/
 
-/*************************************/
-
-
-grafo *prim(grafo *g, int v_ini){
-
- 
-    
-    
+void print_MST(vertice **vertex, int size)
+{
+    int total_cost = 0;
+    for (int i = 0; i < size; i++)
+    {
+        if (vertex[i]->indice != vertex[i]->prev)
+        {
+            printf("%lld %lld\n", vertex[i]->indice, vertex[i]->prev);
+        }
+        //total_cost += vertex[i]->cost;
+    }
+    printf("Total Cost: %d\n", total_cost);
 }
 
+grafo *prim(grafo *g, int v_ini)
+{
+    vertice **adj = g->adj;
+    g->adj[v_ini].custo = 0;
+    g->adj[v_ini].prev = v_ini;
+
+    printf("%d", g->adj[v_ini].custo);
+
+    HEAP *heap = create_heap(g->n, adj);
+
+    while (heap->size > 0)
+    {
+        vertice *v = dequeue(heap);
+        v->visitado = true;
+
+        //printf("visitado %p ", v->cab_lista);
+        adjacencia *no = v->cab_lista;
+
+        printf("v.prev = %d ", v->prev);
+        for (int i = 0; i < 5; i++)
+        {
+        }
+        while (no)
+        {
+            vertice *u = adj[no->vert_dest];
+            /*if (u->visitado == false)
+            {
+                //printf(" puts %d\n", u->custo);
+                if (u->custo > no->peso)
+                {
+                    u->custo = no->peso;
+                    u->prev = v->indice;
+
+                    bubble_up(heap, u->indHeap);
+                }
+            }*/
+
+            no = no->prox;
+        }
+    }
+    //printf printf("heap vert[1] %d", heap->vert[6]->indice);
+    //print_MST(g->adj, g->n);
+}
 
 int main()
 {
-    
+
     FILE *in = fopen("input.in", "r");
     if (!in)
     {
@@ -112,11 +337,11 @@ int main()
         exit(-1);
     }
 
-    int n, u, v, p;
+    int n, ini, u, v, p;
 
     printf("************ \n Observação: A numeração dos vértices inicía-se em 0.\n************\n\n");
 
-    fscanf(in, "%d", &n); //nº de vertices
+    fscanf(in, "%d %d", &n, &ini); //nº de vertices e vértice de inicial
 
     grafo *g = criaGrafo(n);
 
@@ -127,4 +352,6 @@ int main()
     }
 
     imprimeGrafo(g);
+
+    prim(g, n);
 }
