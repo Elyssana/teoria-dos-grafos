@@ -256,6 +256,10 @@ bool criaArestas(grafo *g, int u, int v, int peso)
     novo->prox = g->adj[u].cab_lista;
     g->adj[u].cab_lista = novo;
 
+    novo = criAdj(v, u, peso);
+    novo->prox = g->adj[v].cab_lista;
+    g->adj[v].cab_lista = novo;
+
     g->m++;
 
     return true;
@@ -289,30 +293,41 @@ grafo *prim(grafo *g, int v_ini)
     g->adj[v_ini].custo = 0;
     g->adj[v_ini].prev = v_ini;
 
-    printf("%d", g->adj[v_ini].custo);
+    //printf("%d", g->adj[v_ini].custo);
 
     HEAP *heap = create_heap(g->n, adj);
+    printf("tam mx %d\n ", heap->vert[1]->custo);
 
     while (heap->size > 0)
     {
         vertice *v = dequeue(heap);
         v->visitado = true;
 
-        //printf("visitado %p ", v->cab_lista);
+        if (v->cab_lista == NULL)
+        {
+            printf("nuloo\n");
+        }
+        else
+        {
+            printf("%d "), v->cab_lista->vert_dest;
+        }
+
+        //printf("visitado %d ", v->cab_lista);
         adjacencia *no = v->cab_lista;
 
-        printf("v.prev = %d ", v->prev);
-        for (int i = 0; i < 5; i++)
-        {
-        }
+        //printf("v.id = %d ", v->indice);
+
         while (no)
         {
-            vertice *u = adj[no->vert_dest];
+            int aux = no->vert_dest;
+            printf("no ver_dest: %d \n", adj[++aux]->indice);
+            //vertice *u = adj[no->vert_dest];
+            //vertice *neighbor = adj[node->item];
             /*if (u->visitado == false)
             {
-                //printf(" puts %d\n", u->custo);
+              //printf(" puts %d\n", u->custo);
                 if (u->custo > no->peso)
-                {
+                {  
                     u->custo = no->peso;
                     u->prev = v->indice;
 
