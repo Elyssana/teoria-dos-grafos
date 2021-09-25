@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <limits.h>
 
-#define n 4
-
-void imprimirMatriz(int matriz[][n])
+void imprimirMatriz(int n, int matriz[][n])
 {
     int i, j;
     for (i = 0; i < n; i++)
@@ -11,7 +9,7 @@ void imprimirMatriz(int matriz[][n])
 
         for (j = 0; j < n; j++)
         {
-            
+
             if (matriz[i][j] == INT_MAX)
             {
                 printf("inf. \t");
@@ -30,7 +28,7 @@ int min(int a, int b)
     return a < b ? a : b;
 }
 
-floyd(int grafo[][n])
+void floyd(int n, int grafo[][n])
 {
     int dist[n][n], i, j, k;
 
@@ -55,31 +53,67 @@ floyd(int grafo[][n])
             }
         }
     }
-    imprimirMatriz(dist);
+    imprimirMatriz(n, dist);
+}
+
+int inicializa(int n, int grafo[][n])
+{
+    int i, j;
+    for (i = 0; i < n; i++)
+    {
+
+        for (j = 0; j < n; j++)
+        {
+
+            grafo[i][j] = INT_MAX;
+
+            if (i == j)
+            {
+                grafo[i][j] = 0;
+            }
+        }
+    }
+}
+
+void lerGrafo(int *in, int n, int grafo[][n])
+{
+
+    int u, v, p;
+
+    while (fscanf(in, "%d", &u) != EOF)
+    {
+        fscanf(in, "%d %d", &v, &p);
+        //digrafo
+        grafo[u][v] = p;
+        grafo[v][u] = p;
+    }
 }
 
 int main()
 {
 
-    /* FILE *in = fopen("input.in", "r");
+    FILE *in = fopen("input.in", "r");
     if (!in)
     {
         printf("Erro ao abrir o arquivo!\n");
         exit(-1);
     }
 
-    int n, u, v, p;
+    int n;
 
+    fscanf(in, "%d", &n); //nº de vertices
+    int matriz[n][n];
 
-    fscanf(in, "%d", &n); //nº de vertices */
+    inicializa(n, matriz);
 
-    int matriz[n][n] = {{0, 5, INT_MAX, 10},
-                        {INT_MAX, 0, 3, INT_MAX},
-                        {INT_MAX, INT_MAX, 0, 1},
-                        {INT_MAX, INT_MAX, INT_MAX, 0}};
-    imprimirMatriz(matriz);
+    lerGrafo(in, n, matriz);
+    printf("\n************ Grafo bidirecionado ************\n\n");
 
-    printf("*********************\n");
+    printf("\n *********************\n");
 
-    floyd(matriz);
+    imprimirMatriz(n, matriz);
+
+    printf("\n *********************\n");
+
+    floyd(n, matriz);
 }
