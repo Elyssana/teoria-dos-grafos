@@ -27,13 +27,13 @@ typedef struct grafo
 } grafo;
 
 /*************************************/
-typedef struct HEAP HEAP;
-struct HEAP
+
+typedef struct HEAP
 {
     int size;
     int max_size;
     void **data;
-};
+} HEAP;
 
 typedef struct _node
 {
@@ -41,8 +41,6 @@ typedef struct _node
     int index;
     void *data;
 } _node;
-
-/*************************************/
 
 void imprimeGrafo(grafo *g)
 {
@@ -62,16 +60,6 @@ void imprimeGrafo(grafo *g)
     }
 }
 
-adjacencia *criAdj(int u, int v, int peso)
-{
-    adjacencia *aux = (adjacencia *)malloc(sizeof(adjacencia));
-    aux->vert_orig = u;
-    aux->vert_dest = v;
-    aux->peso = peso;
-    aux->prox = NULL;
-    return aux;
-}
-
 grafo *criaGrafo(int n)
 {
     grafo *g = (grafo *)malloc(sizeof(grafo));
@@ -83,6 +71,16 @@ grafo *criaGrafo(int n)
         g->adj[i].cab = NULL;
     }
     return g;
+}
+
+adjacencia *criAdj(int u, int v, int peso)
+{
+    adjacencia *aux = (adjacencia *)malloc(sizeof(adjacencia));
+    aux->vert_orig = u;
+    aux->vert_dest = v;
+    aux->peso = peso;
+    aux->prox = NULL;
+    return aux;
 }
 
 bool criaArestas(grafo *g, int u, int v, int peso)
@@ -109,7 +107,7 @@ adjacencia *insereNaLista(adjacencia *cabLista, adjacencia *no)
 {
     no->prox = cabLista;
     cabLista = no;
-    return cabLista; //?? precisa?/
+    return cabLista; 
 }
 
 /*************************************/
@@ -355,7 +353,6 @@ int main()
     criaArestas(g, 1, 4, 7);
     criaArestas(g, 2, 4, 6);
     criaArestas(g, 3, 5, 1); */
-
 
     FILE *in = fopen("input.in", "r");
     if (!in)
