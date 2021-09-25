@@ -2,11 +2,11 @@
 
 ## Executar
 ```
-./floyd-warshall < input.in
+./floyd-warshall
 ```
 ## Exemplo de entrada
 
-No seguinte exemplo o primeiro nº a ser lido(6) corresponde ao numero de vertice. As demais linhas saõ formadas por 3 números cada, que correnspondem as arestas, sendo eles o vértices u, o vértice v, e o peso da aresta respectivamente.
+No seguinte exemplo o primeiro nº a ser lido(6) corresponde ao numero de vertice. As demais linhas são formadas por 3 números cada, que correnspondem as arestas, sendo eles o vértices u, o vértice v, e o peso da aresta respectivamente.
 
 ```c
 6
