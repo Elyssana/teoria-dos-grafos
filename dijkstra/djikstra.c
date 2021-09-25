@@ -27,24 +27,6 @@ typedef struct grafo
 
 } grafo;
 
-void imprimeGrafo(grafo *g)
-{
-    printf("vertices: %d. Arestas: %d.\n", g->n, g->m);
-
-    for (int i = 0; i < g->n; i++)
-    {
-        printf("v%d: ", i);
-        adjacencia *ad = g->adj[i].cab;
-        while (ad)
-        {
-            printf("v%d(%d) ", ad->vert, ad->peso);
-            ad = ad->prox;
-        }
-
-        printf("\n");
-    }
-}
-
 adjacencia *criAdj(int v, int peso)
 {
     adjacencia *aux = (adjacencia *)malloc(sizeof(adjacencia));
@@ -185,16 +167,7 @@ int *dijkstra(grafo *g, int s)
 
 int main()
 {
-    /*
-    grafo *g = criaGrafo(5);
-
-    criaArestas(g, 0, 1, 2);
-    criaArestas(g, 1, 2, 4);
-    criaArestas(g, 2, 0, 12);
-    criaArestas(g, 2, 4, 40);
-    criaArestas(g, 3, 1, 3);
-    criaArestas(g, 4, 3, 8);*/
-
+   
     FILE *in = fopen("input.in", "r");
     if (!in)
     {
@@ -227,6 +200,8 @@ int main()
     //imprimeGrafo(g);
 
     int *d = dijkstra(g, s);
+
+
 
     printf("\nDistancias:\n\n");
 
